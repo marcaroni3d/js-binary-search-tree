@@ -1,1 +1,3 @@
-# js-binary-search-tree
+# JS Binary Search Tree
+
+BST practice.
