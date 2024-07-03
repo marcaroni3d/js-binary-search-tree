@@ -27,11 +27,19 @@ class Tree {
 
     #minValue(root) {
         let minv = root.data;
-        while (root.left != null) {
+        while (root.left !== null) {
             minv = root.left.data;
             root = root.left;
         }
         return minv;
+    }
+    #maxValue(root) {
+        let maxv = root.data;
+        while (root.right !== null) {
+            maxv = root.right.data;
+            root = root.right;
+        }
+        return maxv;
     }
 
     insert(value, root = this.root) {
@@ -76,7 +84,101 @@ class Tree {
             return this.find(value, root.left);
         }
         return this.find(value, root.right); 
+       
     }
+
+    levelOrder(callback) {
+        const result = [];
+        const queue = [this.root];
+
+        while (queue.length) {
+            let level = [];
+            let size = queue.length;
+            for (let i = 0; i < size; i++) {
+                const node = queue.shift()
+                level.push(node.data)
+                if (node.left) queue.push(node.left)
+                if (node.right) queue.push(node.right)
+                if (callback) callback(node)
+            }
+        result.push(level)
+        }
+        return result;
+    }
+
+    inOrder(node = this.root, callback, result = []) {
+        if (!this.root) return []
+        if (node === null) return;
+        this.inOrder(node.left, callback, result);
+        callback ? callback(node) : result.push(node.data);
+        this.inOrder(node.right, callback, result);
+        if (result) return result;
+    }
+
+    preOrder(callback) {
+        if (!this.root) return [];
+        const stack = [this.root];
+        const results = [];
+        while (stack.length) {
+            const node = stack.pop();
+            if (node.right) stack.push(node.right);
+            if (node.left) stack.push(node.left);
+            if (callback) callback(node);
+            results.push(node.data)
+        }
+        if (!callback) return results
+    }
+
+    postOrder(callback) {
+        if (!this.root) return [];
+        const stack = [this.root];
+        const results = [];
+        while (stack.length) {
+            const node = stack.pop();
+            if (node.left) stack.push(node.left);
+            if (node.right) stack.push(node.right);
+            if (callback) callback(node);
+            results.push(node.data)
+        }
+        if (!callback) return results.reverse();
+    }
+
+    height(root = this.root) {
+        if (root === null) return 0;
+
+        let lHeight = this.height(root.left);
+        let rHeight = this.height(root.right);
+        
+        if (lHeight > rHeight) {
+            return lHeight + 1;
+        } else {
+            return rHeight + 1;
+        }
+    }
+
+    depth(node, root = this.root, depth = 0) {
+        if (root === null || node === null) return;
+        if (node === root) return `Depth: ${depth}`
+        if (node.data < root.data) {
+            return this.depth(node, root.left, depth += 1)
+        } else {
+            return this.depth(node, root.right, depth += 1)
+        }
+    }
+
+    isBalanced(root = this.root) {
+        const lHeight = this.height(root.left);
+        const rHeight = this.height(root.right);
+        const diff = Math.abs(lHeight - rHeight)
+        return diff < 2 ? true : false;
+    }
+
+    rebalance(root = this.root) {
+        let arr = this.levelOrder([], [], root);
+        arr.sort((a,b) => a - b);
+        return this.root = buildTree(arr);
+    }
+
 }
 
 /* utility function */
@@ -99,6 +201,6 @@ let myTree = new Tree(arr)
 
 prettyPrint(myTree.root)
 
-console.log(myTree.find(23))
+console.log(myTree.inOrder())
 
 
